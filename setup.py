@@ -2,8 +2,8 @@ from distutils.core import setup
 
 setup(
     name = 'unofficial_beam_redis',
-    packages = ['unofficial_beam_redis'],
-    version = '0.1',
+    packages = ['unofficial_beam_redis', 'unofficial_beam_redis.io'],
+    version = '0.2',
     license='Aapache 2.0',
     description = 'An unofficial apache beam sink for redis',
     author = 'unofficial_beam_redis',
@@ -19,7 +19,7 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
-        'License :: OSI Approved :: Apache 2.0 License',
+        'License :: OSI Approved :: Apache Software License', # 2.0
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',

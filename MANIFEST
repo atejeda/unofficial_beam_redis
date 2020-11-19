@@ -2,3 +2,5 @@
 setup.cfg
 setup.py
 unofficial_beam_redis/__init__.py
+unofficial_beam_redis/io/__init__.py
+unofficial_beam_redis/io/redisio.py
