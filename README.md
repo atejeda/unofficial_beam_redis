@@ -39,6 +39,7 @@ Bugs, new features, etc, please follow the github git workflow
 
 # Roadmap
 
+- *TESTS*
 - Add options to support all different parameters for and to-connect to redis
 - Add validations for its parameters
 - Add enumeration for methods
