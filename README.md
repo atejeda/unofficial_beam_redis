@@ -11,9 +11,9 @@ only `set` is supported as well for now.
 ```
 from unofficial_beam_redis.io.redisio import WriteToRedis
 
-  pipeline | WriteToRedis(host='localhost',
-                          port=6379,
-                          batch_size=100)
+pipeline | WriteToRedis(host='localhost',
+                        port=6379,
+                        batch_size=100)
 
 ```
 
@@ -35,8 +35,7 @@ available through pypi https://pypi.org/project/unofficial-beam-redis/.
 # Others
 
 Bugs, new features, etc, please follow the github git workflow 
-(fork and pull-request). Hopefully when this package is stable and complete
-(with all its crucial features).
+(fork and pull-request).
 
 # Roadmap
 
