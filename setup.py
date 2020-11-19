@@ -1,8 +1,8 @@
 from distutils.core import setup
 
 setup(
-    name = 'unnoficial_beam_redis',
-    packages = ['unnoficial_beam_redis'],
+    name = 'unofficial_beam_redis',
+    packages = ['unofficial_beam_redis'],
     version = '0.1',
     license='Aapache 2.0',
     description = 'An unofficial apache beam sink for redis',
