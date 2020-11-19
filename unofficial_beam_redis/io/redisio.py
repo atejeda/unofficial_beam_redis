@@ -29,7 +29,7 @@ Example usage::
 
   pipeline | WriteToRedis(host='localhost',
                           port=6379,
-                          batch_size=10)
+                          batch_size=100)
 
 
 No backward compatibility guarantees. Everything in this module is experimental.
