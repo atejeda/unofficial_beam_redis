@@ -14,7 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-"""
+"""This module implements IO classes to read write data on Redis.
+
+
+Write to Redis:
+-----------------
+:class:`WriteToRedis` is a ``PTransform`` that writes key and values to a 
+configured sink, and the write is conducted through a redis pipeline. 
+
+The ptransform works by getting the first and second elements from the input,
+this means that inputs like `[k,v]` or `(k,v)` are valid.
+
+Example usage::
+
+  pipeline | WriteToRedis(host='localhost',
+                          port=6379,
+                          batch_size=10)
+
+
+No backward compatibility guarantees. Everything in this module is experimental.
 """
 
 from __future__ import absolute_import
@@ -36,11 +54,21 @@ __all__ = ['WriteToRedis']
 
 @experimental()
 class WriteToRedis(beam.PTransform):
-    """
+    """WriteToRedis is a ``PTransform`` that writes a ``PCollection`` of
+    key, value tuple or 2-element array into a redis server.
     """
     
     def __init__(self, host='localhost', port=6379, batch_size=100):
         """
+
+        Args:
+        host (str): The redis host
+        port (str): The redis port
+        batch_size(int): Number of key, values pairs to write at once
+
+        Returns:
+        :class:`~apache_beam.transforms.ptransform.PTransform`
+
         """
         self._host = host
         self._port = port
@@ -105,7 +133,6 @@ class _RedisSink(object):
             for element in elements:
                 k,v = element
                 pipe.set(k,v)
-            logging.debug('writing to redis')
             pipe.execute()
             
     def __enter__(self):
