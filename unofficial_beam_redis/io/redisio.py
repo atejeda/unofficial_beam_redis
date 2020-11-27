@@ -74,7 +74,6 @@ class WriteToRedis(beam.PTransform):
         :class:`~apache_beam.transforms.ptransform.PTransform`
 
         """
-
         if not isinstance(host, (str, unicode, ValueProvider)):
             raise TypeError(
                 '%s: host must be string, or ValueProvider; got %r instead'
@@ -138,13 +137,6 @@ class _WriteRedisFn(DoFn):
             self.batch_counter = 0
             self.batch = list()
 
-    def display_data(self):
-        res = super(_WriteRedisFn, self).display_data()
-        res['host'] = self.host.get()
-        res['port'] = self.port.get()
-        res['batch_size'] = self.batch_size.get()
-        return res
-            
 class _RedisSink(object):
 
     def __init__(self, host, port):
