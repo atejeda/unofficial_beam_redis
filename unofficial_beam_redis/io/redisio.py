@@ -40,6 +40,8 @@ from __future__ import absolute_import
 import logging
 import pickle
 
+from past.builtins import unicode
+
 import apache_beam as beam
 
 from apache_beam.io import iobase
@@ -47,6 +49,8 @@ from apache_beam.transforms import DoFn
 from apache_beam.transforms import PTransform
 from apache_beam.transforms import Reshuffle
 from apache_beam.utils.annotations import experimental
+from apache_beam.options.value_provider import ValueProvider
+from apache_beam.options.value_provider import StaticValueProvider
 
 import redis
 
@@ -58,18 +62,43 @@ class WriteToRedis(beam.PTransform):
     key, value tuple or 2-element array into a redis server.
     """
     
-    def __init__(self, host='localhost', port=6379, batch_size=100):
+    def __init__(self, host=None, port=None, batch_size=100):
         """
 
         Args:
-        host (str): The redis host
-        port (str): The redis port
-        batch_size(int): Number of key, values pairs to write at once
+        host (str, ValueProvider): The redis host
+        port (int, ValueProvider): The redis port
+        batch_size(int, ValueProvider): Number of key, values pairs to write at once
 
         Returns:
         :class:`~apache_beam.transforms.ptransform.PTransform`
 
         """
+
+        if not isinstance(host, (str, unicode, ValueProvider)):
+            raise TypeError(
+                '%s: host must be string, or ValueProvider; got %r instead'
+            ) % (self.__class__.__name__, (type(host)))
+
+        if not isinstance(port, (int, ValueProvider)):
+            raise TypeError(
+                '%s: port must be int, or ValueProvider; got %r instead'
+            ) % (self.__class__.__name__, (type(port)))
+
+        if not isinstance(port, (int, ValueProvider)):
+            raise TypeError(
+                '%s: batch_size must be int, or ValueProvider; got %r instead'
+            ) % (self.__class__.__name__, (type(batch_size)))
+
+        if isinstance(host, (str, unicode)):
+            host = StaticValueProvider(str, host)
+
+        if isinstance(port, int):
+            port = StaticValueProvider(int, port)
+
+        if isinstance(batch_size, int):
+            batch_size = StaticValueProvider(int, batch_size)
+
         self._host = host
         self._port = port
         self._batch_size = batch_size
@@ -77,7 +106,8 @@ class WriteToRedis(beam.PTransform):
     def expand(self, pcoll):
         return pcoll \
                | Reshuffle() \
-               | beam.ParDo(_WriteRedisFn(self._host, self._port,
+               | beam.ParDo(_WriteRedisFn(self._host,
+                                          self._port,
                                           self._batch_size))
 
 class _WriteRedisFn(DoFn):
@@ -96,23 +126,23 @@ class _WriteRedisFn(DoFn):
     def process(self, element, *args, **kwargs):
         self.batch.append(element)
         self.batch_counter += 1
-        if self.batch_counter == self.batch_size:
+        if self.batch_counter == self.batch_size.get():
             self._flush()
             
     def _flush(self):
         if self.batch_counter == 0:
             return
 
-        with _RedisSink(self.host, self.port) as sink:
+        with _RedisSink(self.host.get(), self.port.get()) as sink:
             sink.write(self.batch)
             self.batch_counter = 0
             self.batch = list()
 
     def display_data(self):
         res = super(_WriteRedisFn, self).display_data()
-        res['host'] = self.host
-        res['port'] = self.port
-        res['batch_size'] = self.batch_size
+        res['host'] = self.host.get()
+        res['port'] = self.port.get()
+        res['batch_size'] = self.batch_size.get()
         return res
             
 class _RedisSink(object):

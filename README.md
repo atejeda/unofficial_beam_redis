@@ -46,3 +46,7 @@ Bugs, new features, etc, please follow the github git workflow
 - Add a read class
 - Improve logging
 - PR to apache-beam repository if already doesn't exist by that time
+
+# Changelog
+
+- Adding support for host, port, batch_size as ValueProviders
