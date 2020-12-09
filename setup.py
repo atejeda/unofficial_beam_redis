@@ -3,7 +3,7 @@ from distutils.core import setup
 setup(
     name = 'unofficial_beam_redis',
     packages = ['unofficial_beam_redis', 'unofficial_beam_redis.io'],
-    version = '0.5',
+    version = '0.6',
     license='Aapache 2.0',
     description = 'An unofficial apache beam sink for redis',
     author = 'unofficial_beam_redis',
