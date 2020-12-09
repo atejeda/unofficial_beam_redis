@@ -12,7 +12,6 @@ setup(
     download_url = 'https://github.com/atejeda/unofficial_beam_redis/archive/v_01.tar.gz',
     keywords = ['Apache', 'Beam', 'Redis', 'Sink'],
     install_requires=[
-        'apache-beam',
         'redis',
     ],
     classifiers=[
