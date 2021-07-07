@@ -62,7 +62,7 @@ class WriteToRedis(beam.PTransform):
     key, value tuple or 2-element array into a redis server.
     """
     
-    def __init__(self, host=None, port=None, command="default_set", batch_size=100):
+    def __init__(self, host=None, port=None, command=None, batch_size=100):
         """
 
         Args:
@@ -96,7 +96,7 @@ class WriteToRedis(beam.PTransform):
             port = StaticValueProvider(int, port)
 
         if isinstance(command, int):
-            port = StaticValueProvider(str, port)
+            command = StaticValueProvider(str, command)
 
         if isinstance(batch_size, int):
             batch_size = StaticValueProvider(int, batch_size)
@@ -140,7 +140,7 @@ class _WriteRedisFn(DoFn):
 
         with _RedisSink(self.host.get(), self.port.get()) as sink:
 
-            if self.command == "default_set":
+            if not self.command:
                 sink.write(self.batch)
 
             else:
