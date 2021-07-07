@@ -62,7 +62,7 @@ class WriteToRedis(beam.PTransform):
     key, value tuple or 2-element array into a redis server.
     """
     
-    def __init__(self, host=None, port=None, batch_size=100):
+    def __init__(self, host=None, port=None, command="default_set", batch_size=100):
         """
 
         Args:
@@ -95,11 +95,15 @@ class WriteToRedis(beam.PTransform):
         if isinstance(port, int):
             port = StaticValueProvider(int, port)
 
+        if isinstance(command, int):
+            port = StaticValueProvider(str, port)
+
         if isinstance(batch_size, int):
             batch_size = StaticValueProvider(int, batch_size)
 
         self._host = host
         self._port = port
+        self._command = command
         self._batch_size = batch_size
 
     def expand(self, pcoll):
@@ -107,13 +111,15 @@ class WriteToRedis(beam.PTransform):
                | Reshuffle() \
                | beam.ParDo(_WriteRedisFn(self._host,
                                           self._port,
+                                          self._command,
                                           self._batch_size))
 
 class _WriteRedisFn(DoFn):
 
-    def __init__(self, host, port, batch_size):
+    def __init__(self, host, port, command, batch_size):
         self.host = host
         self.port = port
+        self.command = command
         self.batch_size = batch_size
 
         self.batch_counter = 0
@@ -133,7 +139,13 @@ class _WriteRedisFn(DoFn):
             return
 
         with _RedisSink(self.host.get(), self.port.get()) as sink:
-            sink.write(self.batch)
+
+            if self.command == "default_set":
+                sink.write(self.batch)
+
+            else:
+                sink.execute_command(self.command, self.batch)
+
             self.batch_counter = 0
             self.batch = list()
 
@@ -156,7 +168,15 @@ class _RedisSink(object):
                 k,v = element
                 pipe.set(k,v)
             pipe.execute()
-            
+
+    def execute_command(self, command, elements):
+        self._create_client()
+        with self.client.pipeline() as pipe:
+            for element in elements:
+                k,v = element
+                pipe.execute_command(command, k, v)
+            pipe.execute()
+
     def __enter__(self):
         self._create_client()
         return self
